@@ -1,0 +1,26 @@
+<view class="page">
+  <view class="section-title">新候选通知</view>
+  <view wx:if="{{loading && !notificationsLoaded}}" class="state-card">正在加载通知…</view>
+  <view wx:if="{{notificationError}}" class="state-card error-state">
+    <view>{{notificationError}}</view>
+    <button size="mini" bindtap="load">重试</button>
+  </view>
+  <view class="card {{item.read_at ? 'read' : ''}}" wx:for="{{notifications}}" wx:key="id" data-id="{{item.id}}" bindtap="readNotification">
+    <view class="title">{{item.title}}</view>
+    <view>{{item.body}}</view>
+  </view>
+  <empty-state wx:if="{{notificationsLoaded && !notificationError && notifications.length === 0}}" title="暂无通知" />
+
+  <view class="section-title">我的找搭子需求</view>
+  <view wx:if="{{loading && !requestsLoaded}}" class="state-card">正在加载需求…</view>
+  <view wx:if="{{requestError}}" class="state-card error-state">
+    <view>{{requestError}}</view>
+    <button size="mini" bindtap="load">重试</button>
+  </view>
+  <view class="card" wx:for="{{requests}}" wx:key="id">
+    <view class="title">{{item.intent.activity || '搭子需求'}} · {{item.status}}</view>
+    <view class="muted">{{item.availabilityText}}</view>
+    <button size="mini" data-id="{{item.id}}" bindtap="toggleRequest">{{item.status === 'PAUSED' ? '重新开启' : '暂停'}}</button>
+  </view>
+  <empty-state wx:if="{{requestsLoaded && !requestError && requests.length === 0}}" title="暂无找搭子需求" />
+</view>

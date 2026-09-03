@@ -1,0 +1,8 @@
+{
+  "name": "campus-social-miniprogram",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@cloudbase/js-sdk": "3.9.0"
+  }
+}

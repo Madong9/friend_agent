@@ -1,0 +1,45 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/profile/profile",
+    "pages/agent/agent",
+    "pages/matches/matches",
+    "pages/match-detail/match-detail",
+    "pages/matched/matched",
+    "pages/chat/chat",
+    "pages/notifications/notifications",
+    "pages/settings/settings"
+  ],
+  "window": {
+    "navigationBarTitleText": "校园搭子",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f7fb"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#1aad19",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/agent/agent",
+        "text": "找搭子"
+      },
+      {
+        "pagePath": "pages/matches/matches",
+        "text": "匹配"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "lazyCodeLoading": "requiredComponents",
+  "sitemapLocation": "sitemap.json"
+}

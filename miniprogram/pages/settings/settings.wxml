@@ -1,0 +1,47 @@
+<!-- pages/settings/settings.wxml -->
+<view class="settings">
+  <button bindtap="goNotifications">通知与找搭子需求</button>
+  <view class="card">
+    <view class="section-title">账号</view>
+    <view class="row">
+      <text>昵称</text>
+      <text>{{me.nickname || '未设置'}}</text>
+    </view>
+    <view class="row">
+      <text>内测身份</text>
+      <text>内测用户</text>
+    </view>
+    <view class="row">
+      <text>校园身份</text>
+      <text>{{me.campus_verified ? '已认证' : '未认证（内测模式）'}}</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">推荐设置</view>
+    <view class="row">
+      <text>允许被推荐</text>
+      <switch
+        checked="{{me.recommendation_enabled}}"
+        bindchange="onRecommendationToggle"
+        color="#1aad19"
+      />
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">隐私说明</view>
+    <view class="muted">
+      我们只展示你主动公开的昵称、校区、年级、专业、简介、兴趣和时间。
+      不收集手机号、学号、身份证、宿舍号或精确实时位置。
+      拉黑后双方都不会再被推荐给对方。
+      AI 性格分析必须主动同意，只保存有限社交风格标签，并可随时删除。
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">关于</view>
+    <view class="muted">校园搭子 · 微信小程序零元封闭内测版 v0.1</view>
+    <view class="muted">后端: FastAPI + 可配置 OpenAI-compatible / Mock LLM</view>
+  </view>
+</view>

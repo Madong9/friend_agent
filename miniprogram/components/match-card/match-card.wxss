@@ -1,0 +1,153 @@
+.card {
+  box-sizing: border-box;
+  padding: 24rpx;
+  border: 1rpx solid #e8ebe8;
+  border-radius: 18rpx;
+  background: #ffffff;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+}
+
+.identity {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.nickname {
+  max-width: 260rpx;
+  overflow: hidden;
+  color: #1f2329;
+  font-size: 32rpx;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mock-badge {
+  display: inline-block;
+  margin-left: 10rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 7rpx;
+  background: #fff3e0;
+  color: #d46b08;
+  font-size: 20rpx;
+}
+
+.score-block {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  text-align: right;
+}
+
+.score {
+  display: block;
+  color: #1aad19;
+  font-size: 27rpx;
+  font-weight: 700;
+}
+
+.detail-link {
+  display: block;
+  margin-top: 5rpx;
+  color: #8a919f;
+  font-size: 21rpx;
+}
+
+.meta {
+  margin-top: 12rpx;
+  overflow: hidden;
+  color: #5c6370;
+  font-size: 23rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta .dot {
+  margin: 0 10rpx;
+}
+
+.bio {
+  margin-top: 16rpx;
+  color: #3b4048;
+  font-size: 25rpx;
+  line-height: 1.55;
+}
+
+.tags {
+  margin-top: 16rpx;
+}
+
+.tag {
+  display: inline-block;
+  padding: 5rpx 14rpx;
+  border-radius: 8rpx;
+  background: #eef7ee;
+  color: #168315;
+  font-size: 22rpx;
+}
+
+.reasons {
+  margin-top: 18rpx;
+  padding: 16rpx 18rpx;
+  border-radius: 12rpx;
+  background: #f8f9fb;
+}
+
+.reason-title {
+  margin-bottom: 8rpx;
+  color: #5c6370;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.reason-item {
+  margin-top: 4rpx;
+  color: #6f7681;
+  font-size: 22rpx;
+  line-height: 1.45;
+}
+
+.actions {
+  display: flex;
+  margin-top: 22rpx;
+}
+
+.actions button {
+  flex: 1;
+  min-width: 0;
+  height: 68rpx;
+  margin: 0;
+  padding: 0;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  line-height: 68rpx;
+}
+
+.actions button + button {
+  margin-left: 14rpx;
+}
+
+.btn-like {
+  background: #1aad19;
+  color: #ffffff;
+}
+
+.btn-pass,
+.btn-not-relevant {
+  background: #f2f3f5;
+  color: #5c6370;
+}
+
+.btn-not-relevant {
+  color: #8a919f;
+}
+
+.actions button[disabled] {
+  opacity: 0.55;
+}

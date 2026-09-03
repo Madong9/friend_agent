@@ -1,0 +1,8 @@
+.chat-page { height: 100vh; display: flex; flex-direction: column; background: #f6f7fb; }
+.partner-head { padding: 20rpx; text-align: center; background: #fff; color: #666; }
+.chat-messages { flex: 1; padding: 20rpx; box-sizing: border-box; }
+.chat-message { max-width: 72%; margin: 14rpx 0; padding: 18rpx 22rpx; border-radius: 20rpx; background: #fff; }
+.chat-message.mine { margin-left: auto; background: #dff7df; }
+.chat-input-bar { display: flex; gap: 12rpx; padding: 16rpx; background: #fff; }
+.chat-input-bar input { flex: 1; background: #f2f3f5; border-radius: 30rpx; padding: 12rpx 20rpx; }
+.chat-input-bar button { margin: 0; }

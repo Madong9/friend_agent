@@ -1,0 +1,13 @@
+<view class="chat-page" wx:if="{{partner}}">
+  <view class="partner-head">正在和 {{partner.nickname}} 聊天</view>
+  <scroll-view class="chat-messages" scroll-y scroll-top="999999">
+    <view class="chat-message {{item.sender_id === meId ? 'mine' : 'theirs'}}" wx:for="{{messages}}" wx:key="id">
+      <text>{{item.body}}</text>
+    </view>
+  </scroll-view>
+  <view class="chat-input-bar">
+    <input value="{{input}}" bindinput="onInput" bindconfirm="send" confirm-type="send" maxlength="1000" placeholder="发送站内消息" />
+    <button bindtap="send" loading="{{loading}}" disabled="{{loading}}">发送</button>
+  </view>
+</view>
+<empty-state wx:else title="未找到聊天对象" />

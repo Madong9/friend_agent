@@ -1,0 +1,16 @@
+/* pages/settings/settings.wxss */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  font-size: 28rpx;
+}
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+.muted {
+  line-height: 1.7;
+}

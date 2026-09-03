@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "匹配",
+  "usingComponents": {
+    "match-card": "/components/match-card/match-card"
+  }
+}

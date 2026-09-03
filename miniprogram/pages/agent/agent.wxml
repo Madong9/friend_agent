@@ -1,0 +1,59 @@
+<!-- pages/agent/agent.wxml -->
+<view class="chat">
+  <view class="agent-toolbar">
+    <view class="constraint-list">
+      <text class="constraint" wx:for="{{constraints}}" wx:key="*this">{{item}}</text>
+    </view>
+    <button class="new-session" size="mini" bindtap="newConversation">新需求</button>
+  </view>
+  <scroll-view class="messages" scroll-y scroll-into-view="{{scrollInto}}" scroll-top="{{scrollTop}}">
+    <block wx:for="{{messages}}" wx:key="index">
+      <view class="msg {{item.role}}">
+        <view class="bubble">
+          <text wx:if="{{item.role === 'user'}}">{{item.text}}</text>
+          <block wx:else>
+            <text>{{item.text}}</text>
+            <block wx:if="{{item.matches && item.matches.length > 0}}">
+              <view class="match-list">
+                <view
+                  class="match-row"
+                  wx:for="{{item.matches}}"
+                  wx:for-item="m"
+                  wx:key="id"
+                  bindtap="goDetail"
+                  data-candidate="{{m.id}}"
+                >
+                  <text class="match-name">{{m.nickname}}</text>
+                  <text wx:if="{{m.is_mock}}" class="mock-badge">测试用户</text>
+                  <text class="match-score">匹配分 {{m.total}}</text>
+                </view>
+              </view>
+            </block>
+          </block>
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+
+  <view class="quick-replies" wx:if="{{quickReplies.length > 0}}">
+    <button
+      size="mini"
+      wx:for="{{quickReplies}}"
+      wx:key="*this"
+      data-reply="{{item}}"
+      bindtap="sendQuick"
+    >{{item}}</button>
+  </view>
+
+  <view class="input-bar">
+    <input
+      class="chat-input"
+      placeholder="例如：周六下午想找西区羽毛球搭子"
+      value="{{input}}"
+      bindinput="onInput"
+      confirm-type="send"
+      bindconfirm="send"
+    />
+    <button class="send-btn" disabled="{{loading}}" loading="{{loading}}" bindtap="send">{{loading ? '寻找中' : '发送'}}</button>
+  </view>
+</view>

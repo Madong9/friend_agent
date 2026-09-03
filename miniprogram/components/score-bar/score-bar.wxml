@@ -1,0 +1,9 @@
+<view class="score-bar">
+  <view class="row" wx:for="{{rows}}" wx:key="key">
+    <text class="label">{{item.label}}</text>
+    <view class="track">
+      <view class="fill" style="width: {{item.percent}}%;"></view>
+    </view>
+    <text class="value">{{item.percent}}%</text>
+  </view>
+</view>

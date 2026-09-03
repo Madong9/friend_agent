@@ -1,0 +1,80 @@
+<!-- pages/profile/profile.wxml -->
+<view class="profile">
+  <view wx:if="{{loadError}}" class="card load-error">
+    <view>{{loadError}}</view>
+    <button class="btn-secondary" bindtap="load">重新加载</button>
+  </view>
+
+  <view class="card notification-entry" bindtap="goNotifications" hover-class="notification-entry-active">
+    <view class="notification-copy">
+      <view class="notification-title">新候选通知</view>
+      <view wx:if="{{unreadNotificationCount > 0}}" class="notification-subtitle">你有 {{unreadNotificationCount}} 条未读通知</view>
+      <view wx:else class="notification-subtitle">查看新候选和已发布的找搭子需求</view>
+    </view>
+    <view class="notification-action">
+      <view wx:if="{{unreadNotificationCount > 0}}" class="notification-badge">{{unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}}</view>
+      <text class="notification-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">基础信息</view>
+    <input class="input" placeholder="昵称" value="{{form.nickname}}" bindinput="onField" data-field="nickname" />
+    <input class="input" placeholder="学校" value="{{form.school}}" bindinput="onField" data-field="school" />
+    <input class="input" placeholder="校区" value="{{form.campus}}" bindinput="onField" data-field="campus" />
+    <input class="input" placeholder="年级" value="{{form.grade}}" bindinput="onField" data-field="grade" />
+    <input class="input" placeholder="专业" value="{{form.major}}" bindinput="onField" data-field="major" />
+    <textarea class="textarea" placeholder="一句话介绍自己（Bio）" value="{{form.bio}}" bindinput="onField" data-field="bio"></textarea>
+  </view>
+
+  <view class="card">
+    <view class="section-title">兴趣</view>
+    <input class="input" placeholder="逗号分隔，例如：羽毛球,跑步" value="{{interestsText}}" bindinput="onInterests" />
+  </view>
+
+  <view class="card">
+    <view class="section-title">社交目标</view>
+    <input class="input" placeholder="逗号分隔，例如：运动搭子,兴趣朋友" value="{{goalsText}}" bindinput="onGoals" />
+  </view>
+
+  <view class="card">
+    <view class="section-title">有空时间</view>
+    <input class="input" placeholder="逗号分隔，例如：周六下午,周末上午" value="{{availabilityText}}" bindinput="onAvailability" />
+  </view>
+
+  <view class="card">
+    <view class="section-title">常见活动</view>
+    <input class="input" placeholder="逗号分隔，例如：羽毛球,夜跑" value="{{activitiesText}}" bindinput="onActivities" />
+  </view>
+
+  <view class="card">
+    <view class="section-title">希望避免</view>
+    <input class="input" placeholder="逗号分隔，例如：高强度竞技" value="{{avoidancesText}}" bindinput="onAvoidances" />
+  </view>
+
+  <view class="card">
+    <view class="section-title">社交风格</view>
+    <input class="input" placeholder="例如：慢热 / 外向 / 随和" value="{{form.social_style}}" bindinput="onField" data-field="social_style" />
+  </view>
+
+  <view class="card">
+    <view class="section-title">自然语言补充画像</view>
+    <textarea class="textarea" placeholder="例如：我研一，喜欢跑步和摄影，比较慢热，晚上有时间。" value="{{naturalText}}" bindinput="onNatural"></textarea>
+    <button class="btn-primary" disabled="{{loading}}" loading="{{loading}}" bindtap="parseNatural" style="margin-top: 16rpx;">解析并保存</button>
+  </view>
+
+  <view class="card">
+    <view class="section-title">AI 社交风格分析（可选）</view>
+    <view class="privacy-note">只分析你主动填写的社交偏好，不分析心理疾病、政治、宗教、健康等敏感属性。你可以随时删除。</view>
+    <textarea class="textarea" placeholder="例如：我比较慢热，喜欢提前约好，两三个人一起活动最舒服……" value="{{personalityText}}" bindinput="onPersonalityText"></textarea>
+    <label class="consent"><switch checked="{{personalityConsent}}" bindchange="onPersonalityConsent" color="#1aad19" />我同意将本段自述用于搭子性格匹配</label>
+    <view wx:if="{{form.personality_summary}}" class="personality-summary">{{form.personality_summary}}</view>
+    <button class="btn-primary" disabled="{{loading}}" bindtap="analyzePersonality">分析并用于推荐</button>
+    <button wx:if="{{form.personality_summary}}" class="btn-secondary" bindtap="clearPersonality">删除性格分析</button>
+  </view>
+
+  <view class="actions">
+    <button class="btn-primary" disabled="{{loading}}" loading="{{loading}}" bindtap="save">保存画像</button>
+    <button class="btn-secondary" bindtap="goSettings">设置</button>
+  </view>
+</view>

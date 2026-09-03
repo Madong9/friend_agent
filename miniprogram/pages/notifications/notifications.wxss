@@ -1,0 +1,15 @@
+.page { padding: 24rpx; background: #f6f7fb; min-height: 100vh; }
+.section-title { font-weight: 600; margin: 24rpx 0 14rpx; }
+.card { background: #fff; border-radius: 18rpx; padding: 22rpx; margin-bottom: 14rpx; }
+.card.read { opacity: .6; }
+.title { font-weight: 600; margin-bottom: 8rpx; }
+.muted { color: #888; margin-bottom: 12rpx; }
+.state-card {
+  background: #fff;
+  border-radius: 18rpx;
+  padding: 28rpx 22rpx;
+  color: #667085;
+  text-align: center;
+}
+.error-state { color: #b42318; }
+.error-state button { margin-top: 16rpx; }

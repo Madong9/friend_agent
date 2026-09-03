@@ -1,0 +1,52 @@
+page {
+  background: #f6f7fb;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  color: #1f2329;
+  font-size: 28rpx;
+}
+
+.btn-primary {
+  background: #1aad19;
+  color: #ffffff;
+  border-radius: 12rpx;
+  font-size: 32rpx;
+  padding: 20rpx 0;
+}
+
+.btn-primary[disabled] {
+  background: #c8e6c9;
+  color: #ffffff;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.muted {
+  color: #8a919f;
+  font-size: 24rpx;
+}
+
+.tag {
+  display: inline-block;
+  background: #eef7ee;
+  color: #1aad19;
+  border-radius: 8rpx;
+  padding: 4rpx 16rpx;
+  margin: 0 12rpx 12rpx 0;
+  font-size: 24rpx;
+}
+
+.mock-badge {
+  display: inline-block;
+  background: #fff3e0;
+  color: #e67e22;
+  border-radius: 8rpx;
+  padding: 2rpx 12rpx;
+  font-size: 22rpx;
+  margin-left: 12rpx;
+}

@@ -1,0 +1,59 @@
+/* pages/matched/matched.wxss */
+.celebrate {
+  text-align: center;
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #1aad19;
+  padding: 48rpx 0 16rpx;
+}
+.head .name {
+  display: flex;
+  align-items: center;
+}
+.nickname {
+  font-size: 40rpx;
+  font-weight: 700;
+}
+.meta {
+  margin-top: 12rpx;
+  color: #5c6370;
+  font-size: 26rpx;
+}
+.bio {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+}
+.icebreaker {
+  background: #eef7ee;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+.note {
+  margin-top: 16rpx;
+}
+.danger .btn-block {
+  background: #fff1f0;
+  color: #d4380d;
+  font-size: 28rpx;
+  border-radius: 12rpx;
+  margin-bottom: 16rpx;
+}
+.danger .btn-report {
+  background: #fff7e6;
+  color: #d46b08;
+  font-size: 28rpx;
+  border-radius: 12rpx;
+}
+.chat-button { margin: 24rpx; background: #1aad19; color: #fff; }

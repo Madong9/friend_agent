@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "互相匹配",
+  "usingComponents": {
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

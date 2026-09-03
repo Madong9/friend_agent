@@ -1,0 +1,57 @@
+<!-- pages/match-detail/match-detail.wxml -->
+<view class="detail">
+  <block wx:if="{{candidate}}">
+    <view class="card head">
+      <view class="name">
+        <text class="nickname">{{candidate.nickname}}</text>
+        <text wx:if="{{candidate.is_mock}}" class="mock-badge">测试用户</text>
+      </view>
+      <view class="meta">
+        {{candidate.campus}} · {{candidate.grade}} · {{candidate.major}}
+      </view>
+      <view wx:if="{{candidate.bio}}" class="bio">{{candidate.bio}}</view>
+      <view class="score-line">
+        综合匹配分：
+        <text class="total">{{totalPercent}}%</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">匹配维度</view>
+      <score-bar features="{{candidate.features}}" />
+    </view>
+
+    <view class="card" wx:if="{{candidate.personality_summary}}">
+      <view class="section-title">TA 主动公开的社交风格</view>
+      <view class="bio">{{candidate.personality_summary}}</view>
+    </view>
+
+    <view class="card" wx:if="{{candidate.reasons && candidate.reasons.length > 0}}">
+      <view class="section-title">推荐理由</view>
+      <view class="reason-item" wx:for="{{candidate.reasons}}" wx:key="*this">· {{item}}</view>
+    </view>
+
+    <view class="card" wx:if="{{candidate.icebreaker}}">
+      <view class="section-title">破冰建议</view>
+      <view class="icebreaker">{{candidate.icebreaker}}</view>
+    </view>
+
+    <view class="card feedback-card">
+      <view class="section-title">我的选择</view>
+      <view class="feedback-help">感兴趣后，如果对方也感兴趣，就会形成互相匹配。</view>
+      <view wx:if="{{candidate.is_mock}}" class="mock-help">测试用户可体验反馈和匹配流程，但不会开放真实聊天。</view>
+      <button class="btn-like" loading="{{feedbackLoading}}" disabled="{{feedbackLoading}}" bindtap="onLike">感兴趣</button>
+      <view class="secondary-actions">
+        <button class="btn-pass" disabled="{{feedbackLoading}}" bindtap="onPass">暂时跳过</button>
+        <button class="btn-not-relevant" disabled="{{feedbackLoading}}" bindtap="onNotRelevant">不相关</button>
+      </view>
+    </view>
+
+    <view class="card danger">
+      <view class="section-title">安全操作</view>
+      <button class="btn-block" bindtap="onBlock">拉黑 TA</button>
+      <button class="btn-report" bindtap="onReport">举报</button>
+    </view>
+  </block>
+  <empty-state wx:else title="未找到候选人信息" />
+</view>

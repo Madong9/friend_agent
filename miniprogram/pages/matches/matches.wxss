@@ -1,0 +1,152 @@
+.matches {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 28rpx 24rpx 48rpx;
+}
+
+.page-heading {
+  padding: 8rpx 8rpx 26rpx;
+}
+
+.page-title {
+  color: #1f2329;
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin-top: 8rpx;
+  color: #8a919f;
+  font-size: 24rpx;
+}
+
+.section-panel {
+  margin-bottom: 24rpx;
+  padding: 26rpx 24rpx;
+  border-radius: 20rpx;
+  background: #ffffff;
+  box-shadow: 0 4rpx 18rpx rgba(31, 35, 41, 0.05);
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-title {
+  color: #1f2329;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.section-caption {
+  margin-top: 6rpx;
+  color: #8a919f;
+  font-size: 22rpx;
+}
+
+.count-badge {
+  min-width: 38rpx;
+  padding: 4rpx 10rpx;
+  border-radius: 999rpx;
+  background: #eef7ee;
+  color: #1aad19;
+  font-size: 22rpx;
+  line-height: 30rpx;
+  text-align: center;
+}
+
+.compact-empty {
+  display: flex;
+  align-items: center;
+  margin-top: 22rpx;
+  padding: 22rpx;
+  border-radius: 16rpx;
+  background: #f8f9fb;
+}
+
+.empty-icon {
+  margin-right: 18rpx;
+  font-size: 46rpx;
+}
+
+.empty-copy {
+  flex: 1;
+}
+
+.empty-title {
+  color: #5c6370;
+  font-size: 27rpx;
+  font-weight: 600;
+}
+
+.empty-desc {
+  margin-top: 5rpx;
+  color: #8a919f;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+.mutual-card {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border: 1rpx solid #e8ebe8;
+  border-radius: 16rpx;
+  background: #fbfefb;
+}
+
+.mutual-card:active {
+  background: #f1f8f1;
+}
+
+.mutual-row {
+  display: flex;
+  align-items: center;
+}
+
+.mutual-icon {
+  margin-right: 16rpx;
+  font-size: 38rpx;
+}
+
+.mutual-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mutual-name {
+  color: #1f2329;
+  font-size: 29rpx;
+  font-weight: 600;
+}
+
+.mock-badge {
+  display: inline-block;
+  margin-left: 10rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 7rpx;
+  background: #fff3e0;
+  color: #d46b08;
+  font-size: 20rpx;
+}
+
+.mutual-meta {
+  display: block;
+  margin-top: 6rpx;
+  overflow: hidden;
+  color: #8a919f;
+  font-size: 22rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  margin-left: 14rpx;
+  color: #b8bdc6;
+  font-size: 42rpx;
+}
+
+.queue-item {
+  margin-top: 20rpx;
+}

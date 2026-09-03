@@ -1,0 +1,19 @@
+/* components/empty-state */
+.empty {
+  text-align: center;
+  padding: 120rpx 48rpx;
+}
+.icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+.title {
+  font-size: 30rpx;
+  color: #5c6370;
+  font-weight: 600;
+}
+.desc {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: #8a919f;
+}

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "匹配详情",
+  "usingComponents": {
+    "score-bar": "/components/score-bar/score-bar",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

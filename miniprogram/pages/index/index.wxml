@@ -1,0 +1,13 @@
+<!-- pages/index/index.wxml -->
+<view class="home">
+  <view class="hero">
+    <view class="title">校园搭子</view>
+    <view class="subtitle">一句话找学习、运动、兴趣伙伴</view>
+  </view>
+
+  <view class="actions">
+    <button class="btn-primary" bindtap="goAgent">找搭子</button>
+    <button class="btn-secondary" bindtap="goProfile">完善画像</button>
+    <button class="btn-secondary" bindtap="goMatches">查看匹配</button>
+  </view>
+</view>

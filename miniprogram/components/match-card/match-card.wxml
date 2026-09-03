@@ -1,0 +1,32 @@
+<view class="card">
+  <view class="head">
+    <view class="identity">
+      <text class="nickname">{{candidate.nickname}}</text>
+      <text wx:if="{{candidate.is_mock}}" class="mock-badge">测试用户</text>
+    </view>
+    <view class="score-block" bindtap="onDetail">
+      <text class="score">匹配 {{scorePercent}}%</text>
+      <text class="detail-link">查看详情 ›</text>
+    </view>
+  </view>
+  <view class="meta">
+    <text>{{candidate.campus}}</text>
+    <text class="dot">·</text>
+    <text>{{candidate.grade}}</text>
+    <text class="dot">·</text>
+    <text>{{candidate.major}}</text>
+  </view>
+  <view wx:if="{{candidate.bio}}" class="bio">{{candidate.bio}}</view>
+  <view wx:if="{{sharedInterests.length > 0}}" class="tags">
+    <text class="tag">共同：{{sharedInterests.join('、')}}</text>
+  </view>
+  <view wx:if="{{candidate.reasons && candidate.reasons.length > 0}}" class="reasons">
+    <view class="reason-title">为什么推荐</view>
+    <view wx:for="{{candidate.reasons}}" wx:key="*this" class="reason-item">· {{item}}</view>
+  </view>
+  <view class="actions">
+    <button class="btn-like" disabled="{{feedbackDisabled}}" bindtap="onLike">感兴趣</button>
+    <button class="btn-pass" disabled="{{feedbackDisabled}}" bindtap="onPass">跳过</button>
+    <button class="btn-not-relevant" disabled="{{feedbackDisabled}}" bindtap="onNotRelevant">不相关</button>
+  </view>
+</view>

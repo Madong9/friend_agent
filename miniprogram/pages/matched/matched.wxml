@@ -1,0 +1,38 @@
+<!-- pages/matched/matched.wxml -->
+<view class="matched">
+  <block wx:if="{{partner}}">
+    <view class="celebrate">🎉 你们互相感兴趣</view>
+
+    <view class="card head">
+      <view class="name">
+        <text class="nickname">{{partner.nickname}}</text>
+        <text wx:if="{{partner.is_mock}}" class="mock-badge">测试匹配</text>
+      </view>
+      <view class="meta">{{partner.campus}} · {{partner.grade}} · {{partner.major}}</view>
+      <view wx:if="{{partner.bio}}" class="bio">{{partner.bio}}</view>
+    </view>
+
+    <button wx:if="{{!demoMatch}}" class="chat-button" bindtap="goChat">开始站内聊天</button>
+
+    <view class="card" wx:if="{{sharedInterests.length > 0}}">
+      <view class="section-title">共同兴趣</view>
+      <view class="tags">
+        <text class="tag" wx:for="{{sharedInterests}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="section-title">破冰建议</view>
+      <view class="icebreaker">{{icebreakerTip}}</view>
+      <view wx:if="{{demoMatch}}" class="muted note">这是测试匹配，不会开放真实联系方式。</view>
+      <view wx:else class="muted note">当前版本只开放站内“互相感兴趣”状态，不开放私人联系方式。</view>
+    </view>
+
+    <view class="card danger">
+      <view class="section-title">安全操作</view>
+      <button class="btn-block" bindtap="onBlock">拉黑 TA</button>
+      <button class="btn-report" bindtap="onReport">举报</button>
+    </view>
+  </block>
+  <empty-state wx:else title="未找到匹配信息" />
+</view>

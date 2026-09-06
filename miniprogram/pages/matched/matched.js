@@ -14,21 +14,26 @@ Page({
       return;
     }
     const partner = stored.partner || stored;
-    this.setData({ demoMatch: stored.demo_match || false });
-    api.getMe().then((me) => {
-      const mine = me.interests || [];
-      const theirs = partner.interests || [];
-      const shared = mine.filter((tag) => theirs.indexOf(tag) !== -1);
-      let tip = '可以先从校园生活聊起，比如最近课表、食堂或者社团。';
-      if (shared.length > 0) {
-        tip = '看到你也喜欢' + shared.join('、') + '，可以问问平时一般在哪玩、要不要一起。';
-      }
-      this.setData({
-        partner,
-        sharedInterests: shared,
-        icebreakerTip: tip,
-      });
+    this.setData({
+      partner,
+      demoMatch: stored.demo_match || false,
+      icebreakerTip: '可以先从校园生活聊起，比如最近课表、食堂或者社团。',
     });
+    api.getMe().then(
+      (me) => {
+        const mine = me.interests || [];
+        const theirs = partner.interests || [];
+        const shared = mine.filter((tag) => theirs.indexOf(tag) !== -1);
+        const tip = shared.length > 0
+          ? '看到你也喜欢' + shared.join('、') + '，可以问问平时一般在哪玩、要不要一起。'
+          : this.data.icebreakerTip;
+        this.setData({
+          sharedInterests: shared,
+          icebreakerTip: tip,
+        });
+      },
+      (err) => wx.showToast({ title: err.message, icon: 'none' })
+    );
   },
 
   onBlock() {

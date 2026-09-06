@@ -7,6 +7,8 @@ Page({
     queue: [],
     myInterests: [],
     loading: false,
+    loadingMatches: false,
+    matchError: '',
   },
 
   onShow() {
@@ -14,16 +16,28 @@ Page({
   },
 
   load() {
-    this.setData({ queue: recommendations.getLatest() });
+    this.setData({
+      queue: recommendations.getLatest(),
+      loadingMatches: true,
+      matchError: '',
+    });
     api.getMe().then((me) => {
       this.setData({ myInterests: me.interests || [] });
     }, (err) => wx.showToast({ title: err.message, icon: 'none' }));
     api.getMatches().then(
       (matches) => {
-        this.setData({ mutualMatches: matches || [] });
+        this.setData({
+          mutualMatches: matches || [],
+          loadingMatches: false,
+          matchError: '',
+        });
       },
-      () => {
-        this.setData({ mutualMatches: [] });
+      (err) => {
+        this.setData({
+          mutualMatches: [],
+          loadingMatches: false,
+          matchError: err.message || '匹配列表加载失败',
+        });
       }
     );
   },
@@ -54,9 +68,10 @@ Page({
         } else {
           wx.showToast({ title: '已记录反馈', icon: 'none' });
         }
-        api.getMatches().then((matches) => {
-          this.setData({ mutualMatches: matches || [] });
-        });
+        api.getMatches().then(
+          (matches) => this.setData({ mutualMatches: matches || [] }),
+          (err) => wx.showToast({ title: err.message, icon: 'none' })
+        );
       },
       (err) => {
         this.setData({ loading: false });

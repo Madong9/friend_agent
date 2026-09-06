@@ -52,7 +52,7 @@ uvicorn backend.app.main:app --reload
 ### 微信小程序启动
 
 1. 用微信开发者工具打开 `miniprogram/` 目录（导入项目，测试号 AppID 即可）。
-2. 开发者工具默认访问 `http://127.0.0.1:8000`；API 地址集中在 `miniprogram/config.js`，也可通过 storage/ext config 运行时覆盖。
+2. 当前体验版默认使用 `API_MODE='sdk'`。如需本地后端调试，先在 `miniprogram/config.js` 中显式切换为 `local`；只有该模式允许 `apiBaseUrl` Storage 覆盖。
 3. 首次进入会调用 `wx.login` → `POST /auth/wechat` 换取 JWT；没有真实微信环境时可在后端开启 `DEV_AUTH_MODE=true`，小程序请求不带 token 也会以 `DEV_USER_ID` 身份通过。
 
 手机真机预览时，电脑和手机连接同一 Wi-Fi，然后执行：
@@ -79,12 +79,12 @@ LLM_PROVIDER=mock DEV_AUTH_MODE=true ./scripts/start_mobile_backend.sh
 
 组件：`match-card`（候选卡片）、`score-bar`（可解释分数条）、`empty-state`（空状态）。
 
-网络层统一在 `miniprogram/services/api.js`：鉴权、401 重登、错误码和 timeout 都在这一处处理；普通接口 timeout 为 30 秒，`/agent/chat` 为 60 秒。base URL 统一由 `miniprogram/config.js` 提供。`local/public/http` 使用 `wx.request`，`cloud` 使用 `wx.cloud.callContainer`，可选 `sdk` 使用 `@cloudbase/js-sdk` v3 的 `app.callContainer()`。当前默认仍为经过验证的 `public`；只有 `local` 允许 Storage/ext-config 覆盖 API 地址。
+网络层统一在 `miniprogram/services/api.js`：鉴权、401 重登、错误码和 timeout 都在这一处处理；普通接口 timeout 为 30 秒，`/agent/chat` 为 60 秒。base URL 统一由 `miniprogram/config.js` 提供。`local/public/http` 使用 `wx.request`，`cloud` 使用 `wx.cloud.callContainer`，当前默认 `sdk` 使用 `@cloudbase/js-sdk` v3 的匿名 OAuth session + `app.callContainer()`。`sdk` 的环境和服务名固定取代码审阅值；只有显式 `local` 允许 Storage 覆盖 API 地址。
 
 ## 封闭内测流程（5～30 人）
 
 1. 微信公众平台注册小程序并拿到 AppID，填入后端 `.env` 的 `WECHAT_APP_ID` / `WECHAT_APP_SECRET`（只存后端）。
-2. 在现有 CloudBase PG 模式环境部署云托管。当前环境不能与微信云开发关联，因此小程序通过已登记的云托管公网 HTTPS 地址和 `wx.request` 调用，不使用 `wx.cloud.callContainer`。
+2. 在现有 CloudBase PG 模式环境部署云托管。当前体验版通过已登记的 CloudBase Gateway、匿名 OAuth 和 `app.callContainer()` 调用；`public/http` 公网 HTTPS transport 继续保留为回退，不使用 `wx.cloud.callContainer` 作为正式路径。
 3. `SHOW_MOCK_USERS=true` 保持冷启动有候选；所有 Mock 用户在前端显示“测试用户”徽标，Mock 参与的 Mutual Match 会返回 `demo_match=true` 且不开放站内聊天。
 4. 邀请 5～30 名同学为体验成员 → 上传体验版 → 发体验二维码。
 5. 验证目标：是否愿意填画像、是否愿意自然语言描述、LIKE/PASS/NOT_RELEVANT 点击率、Mutual Match 出现率、次日留存。
@@ -498,7 +498,7 @@ python -m compileall -q backend scripts
 cd frontend && npm run build
 ```
 
-当前本地自动化验收基线：`132 passed, 3 skipped`（skip 为需显式启用并会调用真实 Provider 的集成测试）。覆盖认证、JWT、微信身份、校园认证边界、密码哈希、Alembic SQLite Fresh/Legacy 迁移、真实 PostgreSQL 0008→0009 数据保留升级、CloudBase HTTP Adapter/RPC 路由、需求池与候选通知、可撤销性格分析、可选性格兼容评分、聊天权限、结构化举报、Mock 用户标记与过滤、`/users/me`、`/matches/me`、Mutual Match、Profile/Intent Parser、Matching Score、Hard Filter、Block、Feedback、持久化 Session/Trace、动态 Planner、Mini Program `wx.request`/`callContainer` transport 契约、API 和 End-to-End。
+当前本地自动化验收基线：`176 passed, 3 skipped`（skip 为需显式启用并会调用真实 Provider 的集成测试）。覆盖认证、JWT、微信身份、校园认证边界、密码哈希、Alembic SQLite Fresh/Legacy 迁移、真实 PostgreSQL 0008→0009 数据保留升级、CloudBase HTTP Adapter/RPC 路由与清洗后的故障边界、需求池与候选通知、可撤销性格分析、可选性格兼容评分、聊天权限、结构化举报、Mock 用户标记与过滤、`/users/me`、`/matches/me`、Mutual Match、Profile/Intent Parser、Matching Score、Hard Filter、Block、Feedback、持久化 Session/Trace、动态 Planner、Mini Program `wx.request`/`callContainer` transport 契约、API 和 End-to-End。
 
 - `test_blocked_users_never_match`
 - `test_same_interest_and_time_get_higher_score`
@@ -596,13 +596,13 @@ docker run -p 8000:8000 --env-file .env campus-social-agent
 ./scripts/package_miniprogram.sh
 ```
 
-容器启动会自动执行初始化检查 + 幂等 Seed，再启动 uvicorn。本地 `DATA_BACKEND=sqlite` 时执行 Alembic；CloudBase staging 使用 `DATA_BACKEND=cloudbase_http`，Schema 先在控制台执行 `deployment/cloudbase_schema.sql`，运行期只访问 PostgREST。小程序当前通过云托管公网 HTTPS + `wx.request` 访问 FastAPI。
+容器启动会自动执行初始化检查 + 幂等 Seed，再启动 uvicorn。本地 `DATA_BACKEND=sqlite` 时执行 Alembic；CloudBase staging 使用 `DATA_BACKEND=cloudbase_http`，Schema 先在控制台执行 `deployment/cloudbase_schema.sql`，运行期只访问 PostgREST。小程序体验版当前通过 CloudBase SDK 匿名 OAuth + Gateway `app.callContainer()` 访问 FastAPI，公网 HTTPS `wx.request` transport 保留为回退。
 
 2026-08-28 已实际完成 Docker build/run、容器健康检查、非 root 用户检查和真实 HTTP 推荐冒烟；CloudBase 初始化 SQL还在 PostgreSQL 16 上验证了事务函数与服务角色门禁。当前 shared-PG 环境步骤见 [云托管部署手册](docs/CLOUDBASE_DEPLOYMENT.md)。
 
 ## 已知限制
 
-- CloudBase 云托管 `campus-social-agent` 版本 002、健康探针、shared-PG Seed 与 `/agent/chat` 已实际跑通；本轮 0009 Schema 和新版本仍需要按部署手册发布后做一次真机回归。
+- CloudBase 云托管、健康探针、shared-PG、SDK 双层鉴权、`/agent/chat` 与新候选通知已实际跑通；每次重新部署或上传体验版后仍需按部署手册执行真机冒烟。
 - 微信登录链路已实现；校园认证与微信账号的产品化绑定入口尚未完成，因此当前内测保持 `REQUIRE_CAMPUS_VERIFICATION=false`。启用强制校验前必须先让体验用户可完成绑定。
 - 站内聊天无实时推送（无 WebSocket）；Mock 用户之间按设计不开放聊天。
 - 认证无 Refresh Token 轮换；无集中式撤销与人工审核后台。

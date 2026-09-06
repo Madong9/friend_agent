@@ -70,7 +70,7 @@
     <label class="consent"><switch checked="{{personalityConsent}}" bindchange="onPersonalityConsent" color="#1aad19" />我同意将本段自述用于搭子性格匹配</label>
     <view wx:if="{{form.personality_summary}}" class="personality-summary">{{form.personality_summary}}</view>
     <button class="btn-primary" disabled="{{loading}}" bindtap="analyzePersonality">分析并用于推荐</button>
-    <button wx:if="{{form.personality_summary}}" class="btn-secondary" bindtap="clearPersonality">删除性格分析</button>
+    <button wx:if="{{form.personality_summary}}" class="btn-secondary" disabled="{{loading}}" bindtap="clearPersonality">删除性格分析</button>
   </view>
 
   <view class="actions">

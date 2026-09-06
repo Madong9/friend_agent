@@ -110,16 +110,25 @@ function sdkError(error, requestUrl, timeout) {
   const statusCode = sdkStatusCode(
     sdkErrorValue(error, ['statusCode', 'status', 'code'])
   );
-  const rawMessage = sdkErrorValue(error, [
-    'detail',
-    'message',
-    'errMsg',
-    'error_description',
-  ]);
+  // Prefer the FastAPI body detail even when wx.request also adds a root-level
+  // `errMsg: request:ok` transport marker to the response envelope.
+  let rawMessage =
+    sdkErrorValue(error, ['detail']) ||
+    sdkErrorValue(error, ['message', 'error_description']) ||
+    sdkErrorValue(error, ['errMsg']);
+  // wx.request puts `request:ok` on completed responses even when their HTTP
+  // status is 4xx/5xx. It is transport metadata, not an actionable failure
+  // reason, so fall back to the real HTTP status when no backend detail exists.
+  if (
+    typeof rawMessage === 'string' &&
+    /^request:ok(?:\s|$)/i.test(rawMessage.trim())
+  ) {
+    rawMessage = undefined;
+  }
   const timedOut = sdkErrorType(error) === 'timeout';
   const detail = timedOut
     ? 'CloudBase SDK 请求超时（' + Math.round(timeout / 1000) + ' 秒）'
-    : rawMessage || 'CloudBase SDK 请求失败';
+    : rawMessage || (statusCode ? undefined : 'CloudBase SDK 请求失败');
   const wrapped = new Error(errorMessage(detail, statusCode || 'SDK') + '（' + requestUrl + '）');
   if (statusCode) {
     wrapped.statusCode = statusCode;

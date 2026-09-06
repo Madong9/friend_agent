@@ -1,6 +1,6 @@
 # 微信小程序真机联调手册
 
-本手册用于完成“开发者工具 + 手机真机调试”这项外部验收。代码仓库已经验证后端能监听局域网地址，但仍需要项目拥有者在微信开发者工具和手机上完成扫码。局域网 HTTP 地址只用于临时真机调试；当前正式预览/体验版使用云托管公网 HTTPS + `wx.request`。
+本手册用于“开发者工具 + 手机真机调试”。局域网 HTTP 地址只用于临时本地联调；当前正式预览/体验版使用 CloudBase SDK 匿名 OAuth + Gateway `app.callContainer()`，公网 HTTPS `wx.request` 仅作为 `public/http` 回退。
 
 ## 1. 启动局域网后端
 
@@ -29,18 +29,18 @@ curl http://192.168.1.20:8000/health
 
 1. 手机开启热点，让电脑连接手机热点；
 2. 手机和电脑连接允许设备互访的家庭路由器；
-3. 部署到当前 CloudBase 云托管，开启公网 HTTPS，并通过 `wx.request` 访问。
+3. 使用当前 CloudBase 云托管和已登记的 Gateway，由 `sdk` transport 访问；必要时才显式切换到 `public` 公网 HTTPS 回退。
 
 先在手机浏览器访问脚本打印的 `/health`；只有它返回 `{"status":"ok"}` 后再调试小程序。
 
 ## 2. 导入小程序
 
-1. 微信开发者工具选择“导入项目”，目录选 `miniprogram/`。
+1. 微信开发者工具选择“导入项目”，目录选 `miniprogram/`。局域网调试前必须把代码中的 `API_MODE` 临时改为 `local`；体验版上传前恢复为 `sdk`。
 2. 本地 UI 联调可使用测试号；验证真实 `wx.login` 必须使用自己的小程序 AppID。
 3. 开发者工具的本地调试设置中临时开启“不校验合法域名、web-view、TLS 版本以及 HTTPS 证书”。这个开关只适用于开发调试，不能代替体验版的合法域名配置。
 4. 不要先点普通“预览”，点击工具栏的“真机调试”并扫码。
 5. 等远程调试器连接手机后，在这个远程控制台执行启动脚本打印的 `wx.setStorageSync(...)`。此时命令写入的是手机运行环境；在普通模拟器控制台执行不会自动同步到手机。
-6. 返回小程序页面重新触发请求，所有请求会通过 `miniprogram/config.js` 读取该地址。
+6. 返回小程序页面重新触发请求；只有显式 `local` 模式会通过 `miniprogram/config.js` 读取该 Storage 地址。
 
 也可以在扫码前直接把 `miniprogram/config.js` 的 `API_BASE_URL` 改成电脑局域网地址。这个方式能把地址带入手机包，但普通预览仍然会进行域名校验；局域网 HTTP 依然要使用“真机调试”。恢复 storage 默认值：
 
@@ -86,12 +86,12 @@ SHOW_MOCK_USERS=true
 
 ## 当前验证边界
 
-2026-08-28 已实际验证 `start_mobile_backend.sh` 在 `0.0.0.0` 启动，并可通过自动识别的局域网 IP 访问 `/health`。当前机器没有微信开发者工具和手机控制权，因此扫码、真机布局、真实 `wx.login` 尚未声称通过。
+截至 2026-09-05，真实体验版已验证 CloudBase 匿名登录、Gateway、`/auth/wechat`、`/users/me`、`/agent/chat`、双层鉴权和后续候选通知；具体手机型号的布局、弱网、冷启动和多真实用户 Mutual Match 仍应在每个新体验版上重新冒烟。
 
 ## `request:fail url not in domain list`
 
 这个错误表示微信客户端在网络请求发出前拦截了 URL，FastAPI 不会出现访问日志。
 
-局域网联调：确认 `project.config.json` / 本地项目设置中的 `urlCheck=false`，使用“真机调试”而不是“预览”，并在远程调试控制台写入手机自己的 `apiBaseUrl` storage。错误提示末尾会显示实际请求 URL；它必须是电脑局域网 IP，不能是 `127.0.0.1`。
+局域网联调：只在开发者工具本地调试设置中临时关闭域名校验，代码仓库的 `urlCheck` 保持 `true`；使用“真机调试”而不是“预览”，将 `API_MODE` 临时设为 `local`，并在远程调试控制台写入手机自己的 `apiBaseUrl` Storage。错误提示末尾会显示实际请求 URL；它必须是电脑局域网 IP，不能是 `127.0.0.1`。
 
 普通预览/体验版：保持 `config.js` 的 `API_MODE='sdk'`，由 CloudBase JS SDK 匿名登录后调用 Gateway/`callContainer()`。发布模式只取代码常量，手机里遗留的 `apiMode` 或 `apiBaseUrl` 不会改变 SDK transport。开发者工具需已构建 npm，CloudBase 需已开启匿名登入。本地联调时可临时改为 `local`，公网 HTTPS 回退可改为 `public`，上传前恢复为 `sdk`。

@@ -202,7 +202,7 @@ cd miniprogram
 npm ci
 ```
 
-随后在微信开发者工具执行“工具 → 构建 npm”，确认生成 `miniprogram_npm` 后重新编译。当前代码没有把默认模式切到 `sdk`；手工验证 SDK 基础链路时，可在开发者工具控制台运行：
+随后在微信开发者工具执行“工具 → 构建 npm”，确认生成 `miniprogram_npm` 后重新编译。当前代码默认模式已经是 `sdk`；手工验证 SDK 基础链路时，可在开发者工具控制台运行：
 
 ```js
 const cloudbase = require('@cloudbase/js-sdk/app')

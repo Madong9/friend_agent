@@ -13,7 +13,12 @@
       </view>
       <view wx:if="{{mutualMatches.length > 0}}" class="count-badge">{{mutualMatches.length}}</view>
     </view>
-    <block wx:if="{{mutualMatches.length > 0}}">
+    <view wx:if="{{loadingMatches}}" class="section-state">正在加载匹配…</view>
+    <view wx:elif="{{matchError}}" class="section-state error-state">
+      <view>{{matchError}}</view>
+      <button size="mini" bindtap="load">重试</button>
+    </view>
+    <block wx:elif="{{mutualMatches.length > 0}}">
       <view class="mutual-card" wx:for="{{mutualMatches}}" wx:key="match_id" bindtap="goMatched" data-partner="{{item.partner.id}}">
         <view class="mutual-row">
           <text class="mutual-icon">🎉</text>

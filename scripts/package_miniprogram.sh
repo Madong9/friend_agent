@@ -18,7 +18,8 @@ mkdir -p "$(dirname "$OUTPUT_PATH")"
 cd "$PROJECT_ROOT"
 zip -q -r "$PACKAGE_TMP" project.config.json miniprogram \
   -x '*/project.private.config.json' '*/config.js.save' '*.save' \
-     '*/node_modules/*' '*/__pycache__/*' '*.pyc'
+     '*/node_modules/*' 'miniprogram/miniprogram_npm/*' \
+     '*/__pycache__/*' '*.pyc'
 mv -f "$PACKAGE_TMP" "$OUTPUT_PATH"
 
 printf 'Mini Program source package created: %s\n' "$OUTPUT_PATH"

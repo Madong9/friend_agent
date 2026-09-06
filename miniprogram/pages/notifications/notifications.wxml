@@ -18,9 +18,16 @@
     <button size="mini" bindtap="load">重试</button>
   </view>
   <view class="card" wx:for="{{requests}}" wx:key="id">
-    <view class="title">{{item.intent.activity || '搭子需求'}} · {{item.status}}</view>
+    <view class="title">{{item.intent.activity || '搭子需求'}} · {{item.statusLabel}}</view>
     <view class="muted">{{item.availabilityText}}</view>
-    <button size="mini" data-id="{{item.id}}" bindtap="toggleRequest">{{item.status === 'PAUSED' ? '重新开启' : '暂停'}}</button>
+    <button
+      wx:if="{{item.canToggle}}"
+      size="mini"
+      data-id="{{item.id}}"
+      loading="{{actionRequestId === item.id}}"
+      disabled="{{actionRequestId !== null}}"
+      bindtap="toggleRequest"
+    >{{item.status === 'PAUSED' ? '重新开启' : '暂停'}}</button>
   </view>
   <empty-state wx:if="{{requestsLoaded && !requestError && requests.length === 0}}" title="暂无找搭子需求" />
 </view>

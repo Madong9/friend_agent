@@ -193,4 +193,11 @@ curl -X POST http://127.0.0.1:8000/report \
 curl 'http://127.0.0.1:8000/activities?campus=西区&tag=羽毛球'
 ```
 
+## 统一错误边界
+
+- 缺少、过期或伪造的业务 JWT 返回 401；校园认证或对象权限不足返回 403。
+- 生产环境 LLM Provider 失败时，Agent 接口返回清洗后的 503，不返回上游响应正文或凭据。
+- CloudBase Data API 的连接、读取或上游 HTTP 故障统一返回 `503 data service is temporarily unavailable; please retry later`。即使数据网关自身返回 401，也不会作为业务 JWT 401 透传给客户端。
+- SDK、小程序和服务端日志均不得记录 Authorization、`X-Campus-Authorization`、JWT、API Key、完整 Prompt 或敏感响应正文。
+
 完整字段校验、Bearer 授权和在线执行入口以 `/docs` 为准。

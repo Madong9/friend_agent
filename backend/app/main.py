@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy import inspect
 
 from .config import get_settings
@@ -18,6 +20,10 @@ from .api import (
     users_router,
 )
 from .database import SessionLocal, engine
+from .repositories import CloudBaseDataError
+
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -85,6 +91,36 @@ app.include_router(agent_router)
 app.include_router(matches_router)
 app.include_router(feedback_router)
 app.include_router(activities_router)
+
+
+@app.exception_handler(CloudBaseDataError)
+async def cloudbase_data_error_handler(
+    _request: Request, exc: CloudBaseDataError
+) -> JSONResponse:
+    """Keep CloudBase/PostgREST failures out of public 500 responses.
+
+    The adapter error may contain a provider response message. Only structured,
+    non-secret diagnostics are recorded here, and every data-service failure is
+    exposed as a retryable 503 so an upstream 401 cannot be mistaken for an
+    expired Campus JWT by clients.
+    """
+
+    cause_type = type(exc.__cause__).__name__ if exc.__cause__ else None
+    logger.error(
+        "CloudBase data service request failed",
+        extra={
+            "operation": exc.operation,
+            "upstream_status_code": exc.status_code,
+            "exception_type": type(exc).__name__,
+            "cause_type": cause_type,
+        },
+    )
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "data service is temporarily unavailable; please retry later"
+        },
+    )
 
 
 @app.get("/__tcb_probe__", include_in_schema=False)

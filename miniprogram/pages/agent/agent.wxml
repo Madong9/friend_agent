@@ -25,7 +25,7 @@
                 >
                   <text class="match-name">{{m.nickname}}</text>
                   <text wx:if="{{m.is_mock}}" class="mock-badge">测试用户</text>
-                  <text class="match-score">匹配分 {{m.total}}</text>
+                  <text class="match-score">匹配 {{m.scorePercent}}%</text>
                 </view>
               </view>
             </block>

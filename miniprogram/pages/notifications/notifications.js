@@ -1,5 +1,30 @@
 const api = require('../../services/api.js');
 
+const REQUEST_STATUS_LABELS = {
+  OPEN: '等待新候选',
+  PAUSED: '已暂停',
+  FULFILLED: '已找到候选',
+  EXPIRED: '已过期',
+};
+
+function normalizeRequest(item) {
+  const intent = item && item.intent && typeof item.intent === 'object'
+    ? item.intent
+    : {};
+  const availability = Array.isArray(intent.availability)
+    ? intent.availability
+    : [];
+  const status = String((item && item.status) || '').toUpperCase();
+  return {
+    ...item,
+    intent,
+    status,
+    statusLabel: REQUEST_STATUS_LABELS[status] || status || '未知状态',
+    availabilityText: availability.join('、'),
+    canToggle: status === 'OPEN' || status === 'PAUSED',
+  };
+}
+
 Page({
   data: {
     notifications: [],
@@ -9,6 +34,7 @@ Page({
     requestsLoaded: false,
     notificationError: '',
     requestError: '',
+    actionRequestId: null,
   },
 
   onShow() {
@@ -46,13 +72,7 @@ Page({
         const requests = Array.isArray(requestResult.value)
           ? requestResult.value
           : [];
-        next.requests = requests.map((item) => ({
-          ...item,
-          availabilityText: (
-            (item.intent && item.intent.availability) ||
-            []
-          ).join('、'),
-        }));
+        next.requests = requests.map(normalizeRequest);
         next.requestsLoaded = true;
       } else {
         next.requestError =
@@ -65,16 +85,26 @@ Page({
   },
 
   readNotification(e) {
-    api.markNotificationRead(e.currentTarget.dataset.id).then(() => this.load());
+    api.markNotificationRead(e.currentTarget.dataset.id).then(
+      () => this.load(),
+      (err) => wx.showToast({ title: err.message, icon: 'none' })
+    );
   },
 
   toggleRequest(e) {
     const item = this.data.requests.find(
-      (request) => request.id === e.currentTarget.dataset.id
+      (request) => String(request.id) === String(e.currentTarget.dataset.id)
     );
-    if (!item) return;
+    if (!item || !item.canToggle || this.data.actionRequestId !== null) return;
+    this.setData({ actionRequestId: item.id });
     api
       .updatePartnerRequest(item.id, item.status === 'PAUSED' ? 'OPEN' : 'PAUSED')
-      .then(() => this.load());
+      .then(
+        () => this.load().then(() => this.setData({ actionRequestId: null })),
+        (err) => {
+          this.setData({ actionRequestId: null });
+          wx.showToast({ title: err.message, icon: 'none' });
+        }
+      );
   },
 });

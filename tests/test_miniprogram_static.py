@@ -34,6 +34,10 @@ def test_release_pack_excludes_backup_and_private_config():
         (ROOT / "miniprogram/project.config.json").read_text()
     )
     assert nested_config["packOptions"] == project_config["packOptions"]
+    assert nested_config["setting"]["urlCheck"] is True
+
+    package_script = (ROOT / "scripts/package_miniprogram.sh").read_text()
+    assert "miniprogram/miniprogram_npm/*" in package_script
 
 
 def test_vendored_cloudbase_runtime_is_pinned_and_used():
@@ -242,6 +246,55 @@ page.loadNotificationSummary.call(context).then(() => {
     }
 
 
+def test_agent_restores_saved_candidates_with_percentage_scores():
+    script = r"""
+let page = null;
+global.Page = (definition) => { page = definition; };
+global.wx = {
+  getStorageSync(key) {
+    if (key !== 'agentConversation') return '';
+    return {
+      sessionId: 'saved-session',
+      messages: [{
+        role: 'agent',
+        text: '为你找到候选人',
+        matches: [{ id: 'candidate-1', nickname: '同学', total: 0.4417 }]
+      }]
+    };
+  }
+};
+require('./miniprogram/pages/agent/agent.js');
+const state = { ...page.data };
+const context = {
+  data: state,
+  setData(values) {
+    Object.assign(state, values);
+    this.data = state;
+  }
+};
+page.onLoad.call(context);
+process.stdout.write(JSON.stringify({
+  sessionId: state.sessionId,
+  total: state.messages[0].matches[0].total,
+  scorePercent: state.messages[0].matches[0].scorePercent
+}));
+"""
+    result = subprocess.run(
+        ["node", "-e", script],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert json.loads(result.stdout) == {
+        "sessionId": "saved-session",
+        "total": 0.4417,
+        "scorePercent": 44,
+    }
+    wxml = (ROOT / "miniprogram/pages/agent/agent.wxml").read_text()
+    assert "匹配 {{m.scorePercent}}%" in wxml
+
+
 def test_notifications_page_distinguishes_loading_failure_and_empty_state():
     script = r"""
 const Module = require('module');
@@ -294,6 +347,69 @@ page.load.call(context).then(() => {
         "requestsLoaded": True,
         "requestCount": 1,
         "requestAvailability": "下午",
+    }
+
+
+def test_notifications_labels_terminal_requests_without_invalid_actions():
+    script = r"""
+const Module = require('module');
+const originalLoad = Module._load;
+const updates = [];
+Module._load = function(request, parent, isMain) {
+  if (request === '../../services/api.js') {
+    return {
+      getNotifications() { return Promise.resolve([]); },
+      getPartnerRequests() {
+        return Promise.resolve([
+          { id: 7, status: 'FULFILLED', intent: { activity: '飞盘' } },
+          { id: 8, status: 'OPEN', intent: { activity: '跑步' } }
+        ]);
+      },
+      updatePartnerRequest(id, status) {
+        updates.push({ id, status });
+        return Promise.resolve({});
+      }
+    };
+  }
+  return originalLoad.call(this, request, parent, isMain);
+};
+let page = null;
+global.Page = (definition) => { page = definition; };
+global.wx = { showToast() {} };
+require('./miniprogram/pages/notifications/notifications.js');
+const state = { ...page.data };
+const context = {
+  data: state,
+  setData(values) {
+    Object.assign(state, values);
+    this.data = state;
+  },
+  load: page.load
+};
+page.load.call(context).then(() => {
+  page.toggleRequest.call(context, { currentTarget: { dataset: { id: '7' } } });
+  process.stdout.write(JSON.stringify({
+    fulfilledLabel: state.requests[0].statusLabel,
+    fulfilledCanToggle: state.requests[0].canToggle,
+    openLabel: state.requests[1].statusLabel,
+    openCanToggle: state.requests[1].canToggle,
+    updates
+  }));
+});
+"""
+    result = subprocess.run(
+        ["node", "-e", script],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert json.loads(result.stdout) == {
+        "fulfilledLabel": "已找到候选",
+        "fulfilledCanToggle": False,
+        "openLabel": "等待新候选",
+        "openCanToggle": True,
+        "updates": [],
     }
 
 
@@ -368,6 +484,58 @@ page.onLike.call(context).then(() => {
     assert 'bindtap="onLike"' in template
     assert 'bindtap="onPass"' in template
     assert 'bindtap="onNotRelevant"' in template
+
+
+def test_mutual_match_detail_survives_profile_refresh_failure():
+    script = r"""
+const Module = require('module');
+const originalLoad = Module._load;
+Module._load = function(request, parent, isMain) {
+  if (request === '../../services/api.js') {
+    return { getMe() { return Promise.reject(new Error('资料暂时不可用')); } };
+  }
+  return originalLoad.call(this, request, parent, isMain);
+};
+let page = null;
+const toasts = [];
+global.Page = (definition) => { page = definition; };
+global.wx = {
+  getStorageSync() {
+    return {
+      partner: { id: 'partner-1', nickname: '搭子', interests: ['飞盘'] },
+      demo_match: false
+    };
+  },
+  showToast(options) { toasts.push(options); }
+};
+require('./miniprogram/pages/matched/matched.js');
+const state = { ...page.data };
+const context = {
+  data: state,
+  setData(values) {
+    Object.assign(state, values);
+    this.data = state;
+  }
+};
+page.onLoad.call(context);
+setImmediate(() => process.stdout.write(JSON.stringify({
+  partnerId: state.partner && state.partner.id,
+  hasFallbackIcebreaker: Boolean(state.icebreakerTip),
+  toastTitle: toasts[0] && toasts[0].title
+})));
+"""
+    result = subprocess.run(
+        ["node", "-e", script],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert json.loads(result.stdout) == {
+        "partnerId": "partner-1",
+        "hasFallbackIcebreaker": True,
+        "toastTitle": "资料暂时不可用",
+    }
 
 
 def test_matches_page_uses_card_layout_and_opens_candidate_detail():

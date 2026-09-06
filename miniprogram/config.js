@@ -43,9 +43,16 @@ function getCloudbaseConfig(
   modeOverride = API_MODE,
   publishableKeyOverride = CLOUDBASE_PUBLISHABLE_KEY
 ) {
-  let envId = '';
-  let serviceName = '';
-  if (typeof wx !== 'undefined') {
+  // Transport mode and SDK targets are release-time settings. In particular,
+  // an old local cloudbaseEnvId/cloudbaseServiceName value must never redirect
+  // an sdk experience build away from the reviewed environment and service.
+  const mode = String(modeOverride || API_MODE).trim().toLowerCase();
+  if (!['auto', 'cloud', 'sdk', 'local', 'public', 'http'].includes(mode)) {
+    throw new Error('API_MODE 必须是 auto、cloud、sdk、local、public 或 http');
+  }
+  let envId = CLOUDBASE_ENV_ID;
+  let serviceName = CLOUDBASE_SERVICE_NAME;
+  if ((mode === 'cloud' || mode === 'auto') && typeof wx !== 'undefined') {
     envId = wx.getStorageSync('cloudbaseEnvId') || '';
     serviceName = wx.getStorageSync('cloudbaseServiceName') || '';
     if (typeof wx.getExtConfigSync === 'function') {
@@ -56,12 +63,6 @@ function getCloudbaseConfig(
   }
   envId = String(envId || CLOUDBASE_ENV_ID).trim();
   serviceName = String(serviceName || CLOUDBASE_SERVICE_NAME).trim();
-  // Transport mode is a release-time setting. Never let persistent Storage or
-  // ext-config silently downgrade a public experience build to local mode.
-  const mode = String(modeOverride || API_MODE).trim().toLowerCase();
-  if (!['auto', 'cloud', 'sdk', 'local', 'public', 'http'].includes(mode)) {
-    throw new Error('API_MODE 必须是 auto、cloud、sdk、local、public 或 http');
-  }
   const enabled = mode === 'cloud' || (mode === 'auto' && Boolean(envId && serviceName));
   const sdkEnabled = mode === 'sdk';
   if (enabled && (!envId || !serviceName)) {

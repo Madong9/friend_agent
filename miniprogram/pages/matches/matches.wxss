@@ -57,6 +57,24 @@
   text-align: center;
 }
 
+.section-state {
+  margin-top: 22rpx;
+  padding: 22rpx;
+  border-radius: 16rpx;
+  background: #f8f9fb;
+  color: #667085;
+  font-size: 25rpx;
+  text-align: center;
+}
+
+.section-state.error-state {
+  color: #b42318;
+}
+
+.section-state button {
+  margin-top: 14rpx;
+}
+
 .compact-empty {
   display: flex;
   align-items: center;

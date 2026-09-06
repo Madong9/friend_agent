@@ -6,10 +6,13 @@ Page({
   onLoad() {
     const partner = wx.getStorageSync('chatPartner');
     this.setData({ partner: partner || null });
-    api.getMe().then((me) => {
-      this.setData({ meId: me.id });
-      this.loadMessages();
-    });
+    api.getMe().then(
+      (me) => {
+        this.setData({ meId: me.id });
+        this.loadMessages();
+      },
+      (err) => wx.showToast({ title: err.message, icon: 'none' })
+    );
   },
 
   onShow() {

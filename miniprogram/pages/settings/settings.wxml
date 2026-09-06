@@ -1,5 +1,10 @@
 <!-- pages/settings/settings.wxml -->
 <view class="settings">
+  <view wx:if="{{loading && !me.nickname}}" class="card">正在加载设置…</view>
+  <view wx:if="{{loadError}}" class="card">
+    <view class="muted">{{loadError}}</view>
+    <button size="mini" bindtap="onShow">重试</button>
+  </view>
   <button bindtap="goNotifications">通知与找搭子需求</button>
   <view class="card">
     <view class="section-title">账号</view>
@@ -23,6 +28,7 @@
       <text>允许被推荐</text>
       <switch
         checked="{{me.recommendation_enabled}}"
+        disabled="{{loading}}"
         bindchange="onRecommendationToggle"
         color="#1aad19"
       />

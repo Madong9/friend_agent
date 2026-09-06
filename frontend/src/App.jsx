@@ -45,7 +45,15 @@ function consumeAuthRedirect() {
   const accessToken = hashParams.get("access_token");
   const authError = searchParams.get("auth_error");
   const authStage = searchParams.get("auth_stage");
-  window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+  const sanitizedUrl = new URL(window.location.href);
+  sanitizedUrl.hash = "";
+  sanitizedUrl.searchParams.delete("auth_error");
+  sanitizedUrl.searchParams.delete("auth_stage");
+  window.history.replaceState(
+    {},
+    document.title,
+    sanitizedUrl.pathname + sanitizedUrl.search,
+  );
   if (accessToken) {
     return { accessToken, authStage: authStage || "ustc" };
   }

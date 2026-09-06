@@ -400,3 +400,11 @@ Profile 页加载现先验证 user 对象，失败时统一进入 `catch`，清�
 开发者工具 CLI 登录验证成功后执行了 npm 构建。首次上传被微信服务器以错误码 80051 拒绝：源码包 3761KB，超过主包 2MB 限制。体积分解确认实际使用的 CloudBase app/auth/cloudrun 三个自包含 bundle 约 516KB，超额来自 npm 构建目录中未引用的 SDK 模块、依赖和 source map。
 
 项目配置启用 `ignoreUploadUnusedFiles=true` 并关闭 `uploadWithSourceMap`，不删除或改写 CloudBase SDK 运行模块。重新上传后服务器接受的总包大小为 591.9KB，开发版 `0.1.0-beta.1`（备注“CloudBase SDK transport 体验版”）上传成功。该操作只创建微信小程序开发版，尚未设为体验版、未提交审核、未正式发布。
+
+### 2026-09-05 全项目审计与提交材料收尾
+
+在不修改 Agent、Planner、Matching、Hard Filter、数据库 Schema 和线上配置的前提下，完成了后端、小程序、legacy Web、CloudBase Adapter、部署脚本与比赛材料的一致性审计。后端新增清洗后的 CloudBase Data API 503 边界；小程序修复 SDK `request:ok` 错误文案、发布目标 Storage 隔离、候选百分比、页面加载/失败状态和终态需求操作；Web 清理 OAuth 回调 URL，并固定前端依赖版本。
+
+README、CloudBase 手册和比赛材料已统一为体验版默认 `API_MODE='sdk'`，测试基线更新为 `176 passed, 3 skipped`。新增材料再生成脚本，以源码白名单重建 PDF、DOCX、可部署程序 ZIP 和 SHA256，明确排除真实 `.env`、本地数据、虚拟环境、依赖缓存和开发者私有配置。
+
+最终本地结果：Pytest `176 passed, 3 skipped`，Ruff、小程序静态检查、全部小程序 JavaScript 语法、Vite 生产构建、Python 依赖一致性、前后端 npm 生产依赖审计均通过。隔离 SQLite + Uvicorn HTTP 冒烟确认 `/health`、`/auth/login`、`/users/me` 和 `/agent/chat` 全部返回 200，Agent 返回 recommendation 和 3 名候选；过程中没有输出 JWT。本轮未上传小程序、未部署后端、未执行数据库迁移。

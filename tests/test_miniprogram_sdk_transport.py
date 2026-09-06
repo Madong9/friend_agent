@@ -503,6 +503,33 @@ api.getMe().then((response) => process.stdout.write(JSON.stringify({
     }
 
 
+def test_sdk_mode_ignores_stale_cloudbase_target_storage():
+    script = r"""
+const storage = {
+  cloudbaseEnvId: 'stale-unreviewed-environment',
+  cloudbaseServiceName: 'stale-service'
+};
+global.wx = {
+  getStorageSync(key) { return storage[key] || ''; },
+  getExtConfigSync() {
+    return {
+      cloudbaseEnvId: 'stale-ext-environment',
+      cloudbaseServiceName: 'stale-ext-service'
+    };
+  }
+};
+const config = require('./miniprogram/config.js');
+const sdk = config.getCloudbaseConfig('sdk', 'publishable-test-key');
+const cloud = config.getCloudbaseConfig('cloud');
+process.stdout.write(JSON.stringify({ sdk, cloud }));
+"""
+    result = _run_node(script)
+    assert result["sdk"]["envId"] == "campus-social-d3gsie43e1ca1bc6c"
+    assert result["sdk"]["serviceName"] == "campus-social-agent"
+    assert result["cloud"]["envId"] == "stale-unreviewed-environment"
+    assert result["cloud"]["serviceName"] == "stale-service"
+
+
 def test_sdk_transport_login_jwt_paths_and_timeouts():
     script = r"""
 const storage = {};
@@ -949,6 +976,90 @@ api.getMe().then(
     assert failure["isError"] is True
     assert failure["statusCode"] == 403
     assert "campus access forbidden" in failure["message"]
+
+
+def test_sdk_http_failure_does_not_show_request_ok_as_error_reason():
+    script = r"""
+const storage = { token: 'fastapi-jwt' };
+global.wx = {
+  getStorageSync(key) { return storage[key] || ''; },
+  getExtConfigSync() { return {}; },
+  setStorageSync() {},
+  removeStorageSync() {},
+  login() { throw new Error('Existing token should avoid wx.login'); },
+  request() { throw new Error('SDK mode must not call wx.request'); },
+  cloud: { callContainer() { throw new Error('Wrong transport'); } }
+};
+const config = require('./miniprogram/config.js');
+config.getCloudbaseConfig = () => ({
+  enabled: false,
+  sdkEnabled: true,
+  mode: 'sdk',
+  envId: 'campus-social-d3gsie43e1ca1bc6c',
+  serviceName: 'campus-social-agent',
+  publishableKey: 'publishable-test-key'
+});
+const adapter = require('./miniprogram/services/cloudbase-sdk.js');
+adapter.callCloudbaseContainer = () => Promise.resolve({
+  statusCode: 500,
+  data: 'upstream response omitted',
+  errMsg: 'request:ok'
+});
+const api = require('./miniprogram/services/api.js');
+api.agentChat('find a partner').then(
+  () => { throw new Error('Expected SDK request to fail'); },
+  (error) => process.stdout.write(JSON.stringify({
+    message: error.message,
+    statusCode: error.statusCode
+  }))
+);
+"""
+    failure = _run_node(script)
+    assert failure["statusCode"] == 500
+    assert "请求失败 500" in failure["message"]
+    assert "request:ok" not in failure["message"]
+
+
+def test_sdk_http_failure_prefers_fastapi_detail_over_request_ok_marker():
+    script = r"""
+const storage = { token: 'fastapi-jwt' };
+global.wx = {
+  getStorageSync(key) { return storage[key] || ''; },
+  getExtConfigSync() { return {}; },
+  setStorageSync() {},
+  removeStorageSync() {},
+  login() { throw new Error('Existing token should avoid wx.login'); },
+  request() { throw new Error('SDK mode must not call wx.request'); },
+  cloud: { callContainer() { throw new Error('Wrong transport'); } }
+};
+const config = require('./miniprogram/config.js');
+config.getCloudbaseConfig = () => ({
+  enabled: false,
+  sdkEnabled: true,
+  mode: 'sdk',
+  envId: 'campus-social-d3gsie43e1ca1bc6c',
+  serviceName: 'campus-social-agent',
+  publishableKey: 'publishable-test-key'
+});
+const adapter = require('./miniprogram/services/cloudbase-sdk.js');
+adapter.callCloudbaseContainer = () => Promise.resolve({
+  statusCode: 503,
+  data: { detail: 'data service is temporarily unavailable; please retry later' },
+  errMsg: 'request:ok'
+});
+const api = require('./miniprogram/services/api.js');
+api.agentChat('find a partner').then(
+  () => { throw new Error('Expected SDK request to fail'); },
+  (error) => process.stdout.write(JSON.stringify({
+    message: error.message,
+    statusCode: error.statusCode
+  }))
+);
+"""
+    failure = _run_node(script)
+    assert failure["statusCode"] == 503
+    assert "data service is temporarily unavailable" in failure["message"]
+    assert "request:ok" not in failure["message"]
 
 
 def test_sdk_wx_timeout_has_actionable_message_and_safe_diagnostic():

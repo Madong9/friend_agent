@@ -1,6 +1,27 @@
 const api = require('../../services/api.js');
 const recommendations = require('../../services/recommendations.js');
 
+function normalizeCandidate(candidate) {
+  if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
+    return candidate;
+  }
+  const total = Number(candidate.total);
+  const scorePercent = Number.isFinite(total)
+    ? Math.max(0, Math.min(100, Math.round(total * 100)))
+    : 0;
+  return { ...candidate, scorePercent };
+}
+
+function normalizeMessage(message) {
+  if (!message || !Array.isArray(message.matches)) {
+    return message;
+  }
+  return {
+    ...message,
+    matches: message.matches.map(normalizeCandidate),
+  };
+}
+
 Page({
   data: {
     messages: [],
@@ -15,20 +36,21 @@ Page({
   onLoad() {
     const saved = wx.getStorageSync('agentConversation');
     this.setData(
-      saved && saved.messages
+      saved && Array.isArray(saved.messages)
         ? {
-            messages: saved.messages,
+            messages: saved.messages.map(normalizeMessage),
             sessionId: saved.sessionId || null,
             constraints: saved.constraints || [],
             quickReplies: saved.quickReplies || [],
           }
         : {
             messages: [
-        {
-          role: 'agent',
-          text: '你最近想找什么样的搭子？例如：周六下午想找两个羽毛球搭子，最好在西区，休闲一点。',
-        },
-      ],
+              {
+                role: 'agent',
+                text:
+                  '你最近想找什么样的搭子？例如：周六下午想找两个羽毛球搭子，最好在西区，休闲一点。',
+              },
+            ],
           }
     );
   },
@@ -93,6 +115,9 @@ Page({
   requestAgent(message, retriedAfterExpiry) {
     api.agentChat(message, 3, this.data.sessionId).then(
       (result) => {
+        const matches = Array.isArray(result.matches)
+          ? result.matches.map(normalizeCandidate)
+          : [];
         this.setData({
           sessionId: result.session_id || this.data.sessionId,
           constraints: this.buildConstraints(result.intent || {}),
@@ -102,11 +127,11 @@ Page({
         items.push({
           role: 'agent',
           text: result.message || '已为你找到候选人。',
-          matches: result.matches || [],
+          matches,
           needs_clarification: result.needs_clarification || false,
         });
         if (result.response_type === 'recommendation') {
-          recommendations.setLatest(result.matches || []);
+          recommendations.setLatest(matches);
         }
         this.setData({ messages: items, loading: false, scrollTop: 999999 });
         this.persist();

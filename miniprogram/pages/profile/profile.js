@@ -124,11 +124,11 @@ Page({
       return;
     }
     this.setData({ loading: true });
-    api.analyzePersonality(this.data.personalityText).then(
+    return api.analyzePersonality(this.data.personalityText).then(
       () => {
-        this.setData({ personalityText: '', loading: false });
+        this.setData({ personalityText: '' });
         wx.showToast({ title: '性格偏好已更新', icon: 'success' });
-        this.load();
+        return this.load();
       },
       (err) => {
         this.setData({ loading: false });
@@ -143,10 +143,18 @@ Page({
       content: '将删除结构化性格标签和摘要，不影响其他画像。',
       success: (res) => {
         if (!res.confirm) return;
-        api.clearPersonality().then(() => {
-          this.setData({ personalityConsent: false });
-          this.load();
-        });
+        this.setData({ loading: true });
+        api.clearPersonality().then(
+          () => {
+            this.setData({ personalityConsent: false });
+            wx.showToast({ title: '性格分析已删除', icon: 'success' });
+            return this.load();
+          },
+          (err) => {
+            this.setData({ loading: false });
+            wx.showToast({ title: err.message, icon: 'none' });
+          }
+        );
       },
     });
   },
@@ -163,11 +171,10 @@ Page({
 
   save() {
     this.setData({ loading: true });
-    api.updateMe(this.buildPayload()).then(
+    return api.updateMe(this.buildPayload()).then(
       () => {
         wx.showToast({ title: '保存成功', icon: 'success' });
-        this.load();
-        this.setData({ loading: false });
+        return this.load();
       },
       (err) => {
         wx.showToast({ title: err.message, icon: 'none' });
@@ -181,11 +188,11 @@ Page({
       return;
     }
     this.setData({ loading: true });
-    api.parseProfile(this.data.naturalText, true).then(
+    return api.parseProfile(this.data.naturalText, true).then(
       () => {
         wx.showToast({ title: '已解析并保存', icon: 'success' });
-        this.setData({ naturalText: '', loading: false });
-        this.load();
+        this.setData({ naturalText: '' });
+        return this.load();
       },
       (err) => {
         wx.showToast({ title: err.message, icon: 'none' });

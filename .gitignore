@@ -24,3 +24,6 @@ deployment/*.zip
 # Private competition source, generated documents, video and final packages.
 submission/
 “一〇七杯”算力与智能体开发大赛作品提交预通知.doc
+# Office lock/temporary files may contain private document metadata.
+.~*
+~$*
